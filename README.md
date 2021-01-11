@@ -21,6 +21,7 @@ Document is attached as pdf file. "requirements.pdf"
     - `php artisan key generate`
     - `php artisan jwt:secret`
     - `php artisan migrate --seed`
+    - `npm install`
     - `npm run dev`
     - `php artisan serve`
 6. Go to http://localhost:8000 and Have fun!
