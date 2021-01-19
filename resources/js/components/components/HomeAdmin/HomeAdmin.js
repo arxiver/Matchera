@@ -98,14 +98,12 @@ export default function HomeAdmin() {
 
   if (getRole() === "fan") {
     history.push("/");
-    return null;
   }
   if (getRole() === "manager") {
     history.push("/home/manager/");
-    return null;
   }
   if (getRole() !== "admin") {
-    return history.push("/admin/login/");
+    history.push("/admin/login/");
   }
 
   return (

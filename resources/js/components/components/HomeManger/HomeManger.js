@@ -236,14 +236,12 @@ export default function HomeManger() {
 
   if (getRole() === "admin") {
     history.push("/home/admin/");
-    return null;
   }
   if (getRole() === "fan") {
     history.push("/");
-    return null;
   }
   if (getRole() !== "manager") {
-    return history.push("/login/");
+     history.push("/login/");
   }
 
   return (

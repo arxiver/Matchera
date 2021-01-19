@@ -69465,12 +69465,10 @@ function Home() {
 
   if (Object(_services_Auth__WEBPACK_IMPORTED_MODULE_13__["getRole"])() === "admin") {
     history.push("/home/admin/");
-    return null;
   }
 
   if (Object(_services_Auth__WEBPACK_IMPORTED_MODULE_13__["getRole"])() === "manager") {
     history.push("/home/manager/");
-    return null;
   }
 
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0___default.a.Fragment, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_Header_Header__WEBPACK_IMPORTED_MODULE_22__["default"], {
@@ -69810,16 +69808,14 @@ function HomeAdmin() {
 
   if (Object(_services_Auth__WEBPACK_IMPORTED_MODULE_14__["getRole"])() === "fan") {
     history.push("/");
-    return null;
   }
 
   if (Object(_services_Auth__WEBPACK_IMPORTED_MODULE_14__["getRole"])() === "manager") {
     history.push("/home/manager/");
-    return null;
   }
 
   if (Object(_services_Auth__WEBPACK_IMPORTED_MODULE_14__["getRole"])() !== "admin") {
-    return history.push("/admin/login/");
+    history.push("/admin/login/");
   }
 
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
@@ -70207,25 +70203,16 @@ function HomeManger() {
     };
   }, [refresh, history]);
 
-  if (Object(_services_Auth__WEBPACK_IMPORTED_MODULE_28__["getRole"])()) {
-    if (Object(_services_Auth__WEBPACK_IMPORTED_MODULE_28__["getRole"])().startsWith("admin")) return history.push("/home/admin/");
-    if (Object(_services_Auth__WEBPACK_IMPORTED_MODULE_28__["getRole"])().startsWith("fan")) return history.push("/");
-  } else {
-    return history.push("/login/");
-  }
-
   if (Object(_services_Auth__WEBPACK_IMPORTED_MODULE_28__["getRole"])() === "admin") {
     history.push("/home/admin/");
-    return null;
   }
 
   if (Object(_services_Auth__WEBPACK_IMPORTED_MODULE_28__["getRole"])() === "fan") {
     history.push("/");
-    return null;
   }
 
   if (Object(_services_Auth__WEBPACK_IMPORTED_MODULE_28__["getRole"])() !== "manager") {
-    return history.push("/login/");
+    history.push("/login/");
   }
 
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {

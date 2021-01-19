@@ -378,11 +378,9 @@ export default function Home() {
 
     if (getRole() === "admin") {
         history.push("/home/admin/");
-        return null;
     }
     if (getRole() === "manager") {
         history.push("/home/manager/");
-        return null;
     }
 
     return (
