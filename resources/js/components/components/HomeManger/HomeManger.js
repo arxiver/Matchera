@@ -234,12 +234,6 @@ export default function HomeManger() {
     return () => clearInterval(interval);
   }, [refresh, history]);
 
-  if (getRole()) {
-    if (getRole().startsWith("admin")) return history.push("/home/admin/");
-    if (getRole().startsWith("fan")) return history.push("/");
-  } else {
-    return history.push("/login/");
-  }
   if (getRole() === "admin") {
     history.push("/home/admin/");
     return null;
