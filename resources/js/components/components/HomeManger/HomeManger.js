@@ -7,6 +7,7 @@ import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
+import Tooltip from "@material-ui/core/Tooltip";
 import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
@@ -14,6 +15,8 @@ import InputLabel from "@material-ui/core/InputLabel";
 import Button from "@material-ui/core/Button";
 import { apiBaseUrl } from "../../config.json";
 import MenuItem from "@material-ui/core/MenuItem";
+import PersonAddIcon from "@material-ui/icons/PersonAdd";
+import PersonAddDisabledIcon from "@material-ui/icons/PersonAddDisabled";
 import EditIcon from "@material-ui/icons/Edit";
 import VisibilityIcon from "@material-ui/icons/Visibility";
 import EventSeatIcon from "@material-ui/icons/EventSeat";
@@ -50,6 +53,9 @@ export default function HomeManger() {
   const history = useHistory();
   const classes = useStyles();
   const [refresh, setRefresh] = useState(false);
+  const [teams, setTeams] = useState([]);
+  const [stadiums, setStadiums] = useState([]);
+  const [matches, setMatches] = useState([]);
 
   const [dialogOptions, setDialogOptions] = React.useState({
     open: false,
@@ -58,6 +64,10 @@ export default function HomeManger() {
   });
 
   const handleDialog = (open, type, data) => {
+    if (!isAuth()) {
+      logout();
+      return history.push("/login/");
+    }
     let copyOfData = { ...data };
     setDialogOptions({
       open: open,
@@ -105,10 +115,7 @@ export default function HomeManger() {
       [1, 1, 0, 1]
     ]
   };
-  const [redirect] = useState(isAuth());
-  const [teams, setTeams] = useState([]);
-  const [stadiums, setStadiums] = useState([]);
-  const [matches, setMatches] = useState([]);
+
   const handleSubmit = () => {
     if (dialogOptions.type === "Edit") {
       Axios.post(
@@ -133,12 +140,14 @@ export default function HomeManger() {
               setAlert(res.data.error[0]);
               setOpenAlert(true);
             }
+            if (!isAuth()) {
+              logout();
+              return history.push("/login/");
+            }
           } catch (err) {}
           setRefresh(!refresh);
         })
-        .catch((err) => {
-          console.log(err);
-        });
+        .catch((err) => {});
     } else if (dialogOptions.type === "New Match") {
       Axios.post(
         apiBaseUrl + "manager/add/match/",
@@ -162,12 +171,14 @@ export default function HomeManger() {
               setAlert(res.data.error[0]);
               setOpenAlert(true);
             }
+            if (!isAuth()) {
+              logout();
+              return history.push("/login/");
+            }
           } catch (err) {}
           setRefresh(!refresh);
         })
-        .catch((err) => {
-          console.log(err);
-        });
+        .catch((err) => {});
     } else {
       Axios.post(
         apiBaseUrl + "manager/add/stadium/",
@@ -184,17 +195,23 @@ export default function HomeManger() {
         .then((res) => {
           setRefresh(!refresh);
         })
-        .catch((err) => {
-          console.log(err);
-        });
+        .catch((err) => {});
     }
     handleClose();
   };
 
   useEffect(() => {
+    const interval = setInterval(() => {
+      if (!isAuth()) {
+        logout();
+        return history.push("/admin/login/");
+      } else {
+        setRefresh(!refresh);
+      }
+    }, 5000);
+
     Axios.get(apiBaseUrl + "matches/").then((res) => {
       if (res.data.matches) {
-        console.log(res.data.matches);
         setMatches(res.data.matches);
       }
     });
@@ -212,18 +229,35 @@ export default function HomeManger() {
         setTeams(res.data.teams);
       }
     });
-  }, [refresh]);
+    console.log("loading...");
 
-  if (!redirect) return history.push("/login/");
-  if (getRole().startsWith("admin")) return history.push("/home/admin/");
-  if (getRole().startsWith("fan")) return history.push("/");
+    return () => clearInterval(interval);
+  }, [refresh, history]);
+
+  if (getRole()) {
+    if (getRole().startsWith("admin")) return history.push("/home/admin/");
+    if (getRole().startsWith("fan")) return history.push("/");
+  } else {
+    return history.push("/login/");
+  }
+  if (getRole() === "admin") {
+    history.push("/home/admin/");
+    return null;
+  }
+  if (getRole() === "fan") {
+    history.push("/");
+    return null;
+  }
+  if (getRole() !== "manager") {
+    return history.push("/login/");
+  }
 
   return (
     <div className={classes.root}>
       <AppBar position="sticky">
         <Toolbar>
           <Typography variant="h6" className={classes.title}>
-            Manger
+            Manager
           </Typography>
           <Button
             color="inherit"
@@ -428,27 +462,62 @@ export default function HomeManger() {
 
         {dialogOptions.type === "Seats" && (
           <DialogContent>
-            <Grid container>
+            <Grid container xs={12} margin={2}>
               {dialogOptions.data.seats
                 ? dialogOptions.data.seats.map((row, rindex) => {
                     return (
-                      <Grid container justify="center">
-                        {"Row : " + (rindex + 1) + "  "}
-                        <span>&nbsp;&nbsp;</span>
+                      <Grid container justify="center" spacing={2}>
                         {row.map((item, cindex) => (
-                          <Paper
-                            style={{
-                              backgroundColor:
-                                item === 0
-                                  ? "limegreen"
-                                  : item === 1
-                                  ? "#FF5F5F"
-                                  : "gold"
-                            }}
-                            className={classes.paper}
+                          <Tooltip
+                            title={item === 1 ? "Avaiable" : "Not avaiable"}
+                            placement="top"
                           >
-                            {item === 1 ? "V" : "S"}
-                          </Paper>
+                            <Paper
+                              style={{
+                                backgroundColor:
+                                  item === 1
+                                    ? "limegreen"
+                                    : item === 0
+                                    ? "gray"
+                                    : "gold",
+                                height: 60,
+                                width: 50,
+                                textAlign: "center",
+                                color: "white",
+                                padding: 5,
+                                margin: 10,
+                                userSelect: "none",
+                                cursor: "pointer"
+                              }}
+                              className={classes.paper}
+                            >
+                              <Typography
+                                style={{
+                                  textAlign: "right",
+                                  fontSize: "10px"
+                                }}
+                              >
+                                Row: {rindex + 1} <br></br>
+                              </Typography>
+
+                              {item === 1 && <PersonAddIcon />}
+                              {item === 0 && <PersonAddDisabledIcon />}
+
+                              <Typography
+                                style={{
+                                  textAlign: "left",
+                                  fontSize: "8px"
+                                }}
+                              >
+                                No.:{" "}
+                                {cindex +
+                                  1 +
+                                  rindex *
+                                    dialogOptions.data.stadium
+                                      .seats_per_row}{" "}
+                              </Typography>
+                            </Paper>
+                          </Tooltip>
                         ))}
                       </Grid>
                     );

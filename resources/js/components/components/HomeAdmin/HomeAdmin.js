@@ -32,7 +32,6 @@ export default function HomeAdmin() {
   const history = useHistory();
   const classes = useStyles();
   const [refresh, setRefresh] = useState(false);
-  const [redirect] = useState(isAuth());
   // delete user (table) response OK!
   const [users, setUsers] = useState([]);
   const approveUser = (id, index) => {
@@ -44,6 +43,10 @@ export default function HomeAdmin() {
       }
     )
       .then((res) => {
+        if (!isAuth()) {
+          logout();
+          return history.push("/admin/login/");
+        }
         setRefresh(!refresh);
       })
       .catch((err) => {
@@ -60,6 +63,10 @@ export default function HomeAdmin() {
       }
     )
       .then((res) => {
+        if (!isAuth()) {
+          logout();
+          return history.push("/admin/login/");
+        }
         setRefresh(!refresh);
       })
       .catch((err) => {
@@ -68,20 +75,38 @@ export default function HomeAdmin() {
   };
 
   useEffect(() => {
+    const interval = setInterval(() => {
+      if (!isAuth()) {
+        logout();
+        return history.push("/admin/login/");
+      } else {
+        setRefresh(!refresh);
+      }
+    }, 5000);
+
     Axios.get(apiBaseUrl + "admin/users/", {
       headers: { Authorization: "Bearer " + getToken() }
     }).then((res) => {
       if (res.data.users) {
         setUsers(res.data.users);
       } else {
-        logout();
       }
     });
-  }, [refresh]);
+    console.log("loading...");
+    return () => clearInterval(interval);
+  }, [refresh, history]);
 
-  if (!redirect) return history.push("/admin/login/");
-  if (getRole().startsWith("manger")) return history.push("/home/manger/");
-  if (getRole().startsWith("fan")) return history.push("/");
+  if (getRole() === "fan") {
+    history.push("/");
+    return null;
+  }
+  if (getRole() === "manager") {
+    history.push("/home/manager/");
+    return null;
+  }
+  if (getRole() !== "admin") {
+    return history.push("/admin/login/");
+  }
 
   return (
     <div className={classes.root}>
